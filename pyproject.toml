@@ -4,7 +4,7 @@ version = "1.0.0"
 description = "尽调底稿 PDF 汇集工具 — 扫描文件夹建索引，智能包裹图片/PDF，生成带书签和页码的单一 PDF"
 readme = "README.md"
 requires-python = ">=3.9"
-license = {text = "MIT"}
+license = {text = "Apache-2.0"}
 authors = [
     {name = "Superle"}
 ]
