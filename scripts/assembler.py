@@ -7,6 +7,7 @@
 import io
 import os
 import sys
+import time
 import tempfile
 from pathlib import Path
 
@@ -27,7 +28,7 @@ from scripts.bookmarks import collect_bookmarks_from_index_tree, add_bookmarks
 from scripts.pagenum import add_page_numbers
 
 
-def _process_file(filepath, writer, image_mode='fit'):
+def _process_file(filepath, writer, image_mode='fit', progress=None):
     """处理单个文件加入 PdfWriter"""
     fname = filepath.name
     ext = filepath.suffix.lower()
@@ -43,13 +44,13 @@ def _process_file(filepath, writer, image_mode='fit'):
                 buf = image_to_page(str(filepath))
                 writer.add_page(PdfReader(buf).pages[0])
         except Exception as e:
-            print(f"  [SKIP] {fname}: {e}")
+            print(f"\n  [SKIP] {fname}: {e}")
 
     elif ext == '.pdf':
         try:
             src = fitz.open(str(filepath))
         except Exception as e:
-            print(f"  [SKIP] {fname}: {e}")
+            print(f"\n  [SKIP] {fname}: {e}")
             return
         for pn in range(src.page_count):
             try:
@@ -58,15 +59,23 @@ def _process_file(filepath, writer, image_mode='fit'):
                 for pg in r.pages:
                     writer.add_page(pg)
             except Exception as e:
-                print(f"  [SKIP] {fname} p{pn+1}: {e}")
+                print(f"\n  [SKIP] {fname} p{pn+1}: {e}")
         src.close()
 
     elif ext in TABLE_EXTS:
         # 预转换表格：提示用户手动转换后提供 PDF 路径
-        print(f"  [INFO] {fname}: 表格文件，请预先转换为 PDF 后使用 --table-pdf 参数指定")
+        print(f"\n  [INFO] {fname}: 表格文件，请预先转换为 PDF 后使用 --table-pdf 参数指定")
+
+    if progress is not None:
+        progress['done'] += 1
+        done = progress['done']
+        total = progress['total']
+        pct = done * 100 // total if total > 0 else 100
+        bar = '\u2588' * (pct // 5) + '\u2591' * (20 - pct // 5)
+        print(f"\r  [{bar}] {pct}% ({done}/{total})", end='', flush=True)
 
 
-def _process_node(node, writer, index_paths, page_map, config):
+def _process_node(node, writer, index_paths, page_map, config, progress=None):
     """处理索引树节点（递归）"""
     image_mode = config.get('image_mode', 'fit')
     page_map[node['page_num']] = len(writer.pages) + 1
@@ -84,18 +93,18 @@ def _process_node(node, writer, index_paths, page_map, config):
     if node_type == 'folder':
         files = collect_folder(node['path'], config.get('include_tables', False))
         for f in files:
-            _process_file(f, writer, image_mode)
+            _process_file(f, writer, image_mode, progress)
 
     elif node_type == 'file':
         if node['path'].exists():
-            _process_file(node['path'], writer, image_mode)
+            _process_file(node['path'], writer, image_mode, progress)
 
     elif node_type == 'index_only':
         pass  # 只放索引页，无内容
 
     # 子节点
     for child in node.get('children', []):
-        _process_node(child, writer, index_paths, page_map, config)
+        _process_node(child, writer, index_paths, page_map, config, progress)
 
 
 def assemble(config):
@@ -107,36 +116,34 @@ def assemble(config):
     """
     input_dir = Path(config['input_dir'])
     output_path = Path(config['output_path'])
+    t_start = time.time()
 
-    print("=" * 60)
-    print("尽调底稿 PDF 汇集")
-    print(f"输入: {input_dir}")
-    print(f"输出: {output_path}")
-    print("=" * 60)
+    print("╭" + "─" * 50 + "╮")
+    print(f"│  Diligence PDF v1.0{' ' * 31}│")
+    print("│" + " " * 50 + "│")
+    print(f"│  \U0001f4c2 输入目录   {str(input_dir)[:37]:<37} │")
 
     # Phase 1: 构建索引树
     index_mode = config.get('index_mode', 'auto')
     index_source = config.get('index_source')
 
     if index_mode == 'auto':
-        print("\n[1] 自动扫描目录生成索引...")
+        print("│  \U0001f50d 索引模式   自动扫描目录生成索引                  │")
         index_tree = auto_index_from_folders(input_dir)
-        # 挂载内容路径
         for entry in index_tree:
             entry['type'] = 'folder'
             entry['gen_index'] = True
             for child in entry.get('children', []):
                 child['type'] = 'folder'
                 child['gen_index'] = True
-        print(f"  共 {len(index_tree)} 个一级条目")
+        print(f"│  \U0001f4d1 索引条目   {len(index_tree):<37} │")
 
     elif index_mode == 'pdf' and index_source:
-        print("\n[1] 拆分预转换索引 PDF...")
+        print("│  \U0001f50d 索引模式   使用预转换索引 PDF                       │")
         index_dir = Path(tempfile.gettempdir()) / "_idx_pages"
         index_paths = split_index_pdf(Path(index_source), index_dir)
-        print(f"  已拆为 {len(index_paths)} 页")
+        print(f"│  \U0001f4d1 索引页数   {len(index_paths):<37} │")
 
-        # 构建简单的线性索引树
         items = sorted([d for d in input_dir.iterdir() if d.is_dir() and not should_skip(d.name)],
                        key=lambda x: x.name)
         index_tree = []
@@ -151,7 +158,6 @@ def assemble(config):
                 "index_pdf_path": index_paths[i],
                 "children": [],
             }
-            # 子文件夹
             subdirs = sorted([d for d in item.iterdir() if d.is_dir() and not should_skip(d.name)],
                              key=lambda x: x.name)
             for j, sub in enumerate(subdirs):
@@ -167,7 +173,7 @@ def assemble(config):
             index_tree.append(entry)
 
     elif index_mode == 'none':
-        print("\n[1] 无索引模式 — 直接合并文件...")
+        print("│  \U0001f50d 索引模式   无索引（直接合并）                        │")
         index_tree = [{
             "page_num": 1,
             "title": input_dir.name,
@@ -179,28 +185,65 @@ def assemble(config):
     else:
         raise ValueError(f"不支持的索引模式: {index_mode}")
 
+    # 预扫描：统计文件
+    img_count = 0
+    pdf_count = 0
+    total_files = 0
+
+    def _count_in_node(node):
+        nonlocal img_count, pdf_count, total_files
+        node_type = node.get('type', 'folder')
+        if node_type == 'folder' and 'path' in node:
+            try:
+                files = collect_folder(node['path'], config.get('include_tables', False))
+            except Exception:
+                files = []
+            for f in files:
+                ext = f.suffix.lower()
+                if ext in IMAGE_EXTS:
+                    img_count += 1
+                elif ext == '.pdf':
+                    pdf_count += 1
+                total_files += 1
+        elif node_type == 'file' and 'path' in node:
+            fpath = node['path']
+            if fpath.exists():
+                ext = fpath.suffix.lower()
+                if ext in IMAGE_EXTS:
+                    img_count += 1
+                elif ext == '.pdf':
+                    pdf_count += 1
+                total_files += 1
+        for child in node.get('children', []):
+            _count_in_node(child)
+
+    for entry in index_tree:
+        _count_in_node(entry)
+
+    print(f"│  \U0001f4c4 找到文件   {total_files} 个 (图片 {img_count} + PDF {pdf_count}){' ' * max(0, 15 - len(str(total_files)))} │")
+    print("│" + " " * 50 + "│")
+
     # Phase 2: 处理文件
-    print("\n[2] 处理文件...")
+    progress = {'done': 0, 'total': total_files}
     writer = PdfWriter()
     page_map = {}
 
     for entry in index_tree:
-        _process_node(entry, writer, None, page_map, config)
+        _process_node(entry, writer, None, page_map, config, progress)
+
+    print()  # 换行结束进度条
 
     total_pages = len(writer.pages)
-    print(f"\n[3] 共 {total_pages} 页")
 
     # Phase 3: 保存临时 + 页码
     tmp_pdf = tempfile.mktemp(suffix='.pdf')
     with open(tmp_pdf, 'wb') as fp:
         writer.write(fp)
 
-    print("[4] 添加页码...")
     add_page_numbers(tmp_pdf, tmp_pdf)
 
     # Phase 4: 书签
     if config.get('add_bookmarks', True):
-        print("[5] 添加书签...")
         bms = collect_bookmarks_from_index_tree(index_tree, page_map)
         add_bookmarks(tmp_pdf, bms, tmp_pdf)
 
@@ -210,8 +253,12 @@ def assemble(config):
     shutil.copy2(tmp_pdf, output_path)
     os.remove(tmp_pdf)
 
-    print(f"\n{'=' * 60}")
-    print(f"[完成] {output_path}")
-    print(f"总页数: {total_pages}")
-    print(f"{'=' * 60}")
+    elapsed = time.time() - t_start
+    mins = int(elapsed // 60)
+    secs = int(elapsed % 60)
+    time_str = f"{mins} 分 {secs} 秒" if mins > 0 else f"{secs} 秒"
+
+    print(f"│  \u2705 处理完成   耗时 {time_str}{' ' * max(0, 32 - len(time_str))} │")
+    print(f"│  \U0001f4cf 总页数     {total_pages} 页{' ' * max(0, 30 - len(str(total_pages)))} │")
+    print("╰" + "─" * 50 + "╯")
     return str(output_path)

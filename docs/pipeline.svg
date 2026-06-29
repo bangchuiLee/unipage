@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 950" width="960" height="950">
+<style>
+  text { font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Microsoft YaHei", "SimHei", sans-serif; }
+</style>
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#6b7280"/>
+  </marker>
+  <marker id="arrow-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#2563eb"/>
+  </marker>
+  <marker id="arrow-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#16a34a"/>
+  </marker>
+  <marker id="arrow-orange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#ea580c"/>
+  </marker>
+  <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+    <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+  </filter>
+</defs>
+<rect width="960" height="950" fill="#ffffff"/>
+  <rect x="370" y="24" width="220" height="44" rx="8" ry="8" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5"/>
+  <text x="480" y="52" font-size="15" fill="#111827" text-anchor="middle" font-weight="600">📂 扫描根目录</text>
+  <line x1="480" y1="68" x2="480" y2="100" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <polygon points="480,100.0 560.0,128 480,156.0 400.0,128" fill="#ffffff" stroke="#d1d5db" stroke-width="1.5"/>
+  <text x="480" y="126" font-size="13" fill="#374151" text-anchor="middle" >索引模式?</text>
+  <text x="480" y="142" font-size="10" fill="#9ca3af" text-anchor="middle" >auto / pdf / none</text>
+  <line x1="480" y1="156" x2="480" y2="182" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="375" y="182" width="210" height="38" rx="8" ry="8" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1.5"/>
+  <text x="480" y="206" font-size="13" fill="#166534" text-anchor="middle" >📁 自动扫描 → 生成层级索引</text>
+  <line x1="480" y1="128" x2="280" y2="156" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="280" y1="156" x2="280" y2="182" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="170" y="182" width="220" height="38" rx="8" ry="8" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1.5"/>
+  <text x="280" y="206" font-size="13" fill="#166534" text-anchor="middle" >📑 拆分预转换索引 PDF</text>
+  <line x1="480" y1="128" x2="680" y2="156" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="680" y1="156" x2="680" y2="182" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="570" y="182" width="220" height="38" rx="8" ry="8" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1.5"/>
+  <text x="680" y="206" font-size="13" fill="#166534" text-anchor="middle" >🚫 无索引，直接合并</text>
+  <line x1="280" y1="220" x2="480" y2="240" stroke="#9ca3af" stroke-width="1" marker-end="none"/>
+  <line x1="680" y1="220" x2="480" y2="240" stroke="#9ca3af" stroke-width="1" marker-end="none"/>
+  <line x1="280" y1="220" x2="280" y2="240" stroke="#9ca3af" stroke-width="1" marker-end="none"/>
+  <line x1="480" y1="220" x2="480" y2="240" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="680" y1="220" x2="680" y2="240" stroke="#9ca3af" stroke-width="1" marker-end="none"/>
+  <rect x="350" y="244" width="260" height="44" rx="8" ry="8" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5"/>
+  <text x="480" y="272" font-size="14" fill="#111827" text-anchor="middle" font-weight="600">📁 收集文件</text>
+  <line x1="480" y1="288" x2="480" y2="326" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <polygon points="480,326.0 560.0,354 480,382.0 400.0,354" fill="#ffffff" stroke="#d1d5db" stroke-width="1.5"/>
+  <text x="480" y="352" font-size="13" fill="#374151" text-anchor="middle" >文件类型?</text>
+  <text x="480" y="368" font-size="10" fill="#9ca3af" text-anchor="middle" >图片 / PDF / 表格</text>
+  <line x1="480" y1="382" x2="480" y2="408" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="370" y="408" width="220" height="38" rx="8" ry="8" fill="#fef3c7" stroke="#fcd34d" stroke-width="1.5"/>
+  <text x="480" y="432" font-size="13" fill="#92400e" text-anchor="middle" >🖼️ 图片 → 等比缩放</text>
+  <line x1="480" y1="354" x2="280" y2="382" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="280" y1="382" x2="280" y2="408" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="170" y="408" width="220" height="38" rx="8" ry="8" fill="#fef3c7" stroke="#fcd34d" stroke-width="1.5"/>
+  <text x="280" y="432" font-size="13" fill="#92400e" text-anchor="middle" >📄 PDF → 三路决策树</text>
+  <line x1="480" y1="354" x2="680" y2="382" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="680" y1="382" x2="680" y2="408" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="570" y="408" width="220" height="38" rx="8" ry="8" fill="#fef3c7" stroke="#fcd34d" stroke-width="1.5"/>
+  <text x="680" y="432" font-size="13" fill="#92400e" text-anchor="middle" >📊 表格 → 提示预先转换</text>
+  <text x="280" y="452" font-size="10" fill="#9ca3af" text-anchor="middle" >(A4原样 / 矢量包裹 / pixmap回退)</text>
+  <line x1="280" y1="446" x2="480" y2="470" stroke="#9ca3af" stroke-width="1" marker-end="none"/>
+  <line x1="680" y1="446" x2="480" y2="470" stroke="#9ca3af" stroke-width="1" marker-end="none"/>
+  <line x1="480" y1="446" x2="480" y2="470" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="350" y="474" width="260" height="44" rx="8" ry="8" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5"/>
+  <text x="480" y="502" font-size="14" fill="#111827" text-anchor="middle" font-weight="600">📄 页面合并</text>
+  <line x1="480" y1="518" x2="480" y2="558" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="350" y="558" width="260" height="44" rx="8" ry="8" fill="#faf5ff" stroke="#e9d5ff" stroke-width="1.5"/>
+  <text x="480" y="586" font-size="14" fill="#111827" text-anchor="middle" font-weight="600">🔢 添加页码</text>
+  <line x1="480" y1="602" x2="480" y2="642" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="350" y="642" width="260" height="44" rx="8" ry="8" fill="#faf5ff" stroke="#e9d5ff" stroke-width="1.5"/>
+  <text x="480" y="670" font-size="14" fill="#111827" text-anchor="middle" font-weight="600">📑 生成可折叠书签</text>
+  <line x1="480" y1="686" x2="480" y2="726" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="370" y="726" width="220" height="48" rx="8" ry="8" fill="#dbeafe" stroke="#93c5fd" stroke-width="2" filter="url(#shadow)"/>
+  <text x="480" y="756" font-size="15" fill="#1e40af" text-anchor="middle" font-weight="600">📦 输出打印就绪 PDF</text>
+  <text x="120" y="850" font-size="13" fill="#374151" text-anchor="start" font-weight="600">⚡ PDF 三路决策树</text>
+  <text x="120" y="872" font-size="11" fill="#6b7280" text-anchor="start" >  路径 A: A4 + 有边距 → 原样通过（最快，矢量）</text>
+  <text x="120" y="890" font-size="11" fill="#6b7280" text-anchor="start" >  路径 B: 近A4 + 无异常 → show_pdf_page 包裹</text>
+  <text x="120" y="908" font-size="11" fill="#6b7280" text-anchor="start" >  路径 C: 非标准/旋转 → 150dpi pixmap 回退</text>
+  <text x="720" y="850" font-size="12" fill="#374151" text-anchor="start" font-weight="600">图例</text>
+  <rect x="720" y="860" width="30" height="4" rx="2" fill="#2563eb"/>
+  <text x="758" y="865" font-size="11" fill="#6b7280" text-anchor="start" >主流程</text>
+  <polygon points="735,884 750,876 735,868" fill="#6b7280"/>
+  <text x="758" y="880" font-size="11" fill="#6b7280" text-anchor="start" >决策节点</text>
+  <rect x="720" y="895" width="30" height="12" rx="3" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
+  <text x="758" y="905" font-size="11" fill="#6b7280" text-anchor="start" >处理阶段</text>
+</svg>
