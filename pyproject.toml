@@ -1,0 +1,56 @@
+[project]
+name = "diligence-pdf"
+version = "1.0.0"
+description = "尽调底稿 PDF 汇集工具 — 扫描文件夹建索引，智能包裹图片/PDF，生成带书签和页码的单一 PDF"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "Superle"}
+]
+keywords = ["pdf", "diligence", "legal", "document-assembler", "pdf-merger"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Legal Industry",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+dependencies = [
+    "PyMuPDF>=1.24",
+    "reportlab>=4.0",
+    "pypdf>=5.0",
+    "Pillow>=10.0",
+    "openpyxl>=3.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/superle/diligence-pdf"
+Repository = "https://github.com/superle/diligence-pdf.git"
+Issues = "https://github.com/superle/diligence-pdf/issues"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["diligence_pdf*", "scripts*"]
+
+[tool.setuptools.package-dir]
+"" = "."
+
+[project.scripts]
+diligence-pdf = "diligence_pdf.__main__:main"
