@@ -4,8 +4,9 @@
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg" alt="Platform">
 </p>
 
-<h1 align="center">Diligence PDF</h1>
-<p align="center"><strong>散落文档一口吞 —— 自动建索引、统一边距、直接送印</strong></p>
+<h1 align="center">归页 Unipage</h1>
+<p align="center"><strong>散落万千，终归一页</strong></p>
+<p align="center"><sub>every file finds its place</sub></p>
 
 <p align="center">
   <a href="#-快速开始">快速开始</a> ·
@@ -17,7 +18,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/banner.png" alt="Diligence PDF workflow" width="720">
+  <img src="docs/banner.png" alt="归页 Unipage" width="720">
 </p>
 
 ---
@@ -26,7 +27,7 @@
 
 **想象一下：** 项目大功告成，只剩最后一哆嗦——把前期攒下的一堆文件汇总打印出来。就这么一个活，干起来还是好麻烦：照片歪的、扫描件横的、PDF 尺寸五花八门，最关键的是——这些文件你当时是按自己才看得懂的结构放的，过两天自己都会懵："这块我当时是怎么放的来着？"
 
-**Diligence PDF 就是为这最后一公里设计的。** 你只管按自己的习惯随便放，把根目录指给它，它自己进去翻——认得出你的结构、理得清你的文件、给每一页裁好统一边距、标上页码、生成目录书签。最后递到你手上——一本干干净净、可以直接送印的 PDF。
+**归页就是为这最后一公里设计的。** 你只管按自己的习惯随便放，把根目录指给它，它自己进去翻——认得出你的结构、理得清你的文件、给每一页裁好统一边距、标上页码、生成目录书签。最后递到你手上——一本干干净净、可以直接送印的 PDF。
 
 > *"帮我整理一下这个文件夹"* —— 就这一句话的事，三分钟拿成品。
 
@@ -71,14 +72,14 @@
 ## 📦 安装
 
 ```bash
-pip install git+https://github.com/bangchuiLee/diligence-pdf.git
+pip install git+https://github.com/bangchuiLee/unipage.git
 ```
 
 或本地克隆：
 
 ```bash
-git clone https://github.com/bangchuiLee/diligence-pdf.git
-cd diligence-pdf
+git clone https://github.com/bangchuiLee/unipage.git
+cd unipage
 pip install .
 ```
 
@@ -106,7 +107,7 @@ diligence-pdf assemble ./我的材料 -o 归档文件.pdf
 $ diligence-pdf assemble ./底稿材料 -o 尽调底稿.pdf
 
 ╭──────────────────────────────────────────────────╮
-│  Diligence PDF v1.0                               │
+│  归页 v1.0                                     │
 │                                                    │
 │  📂 输入目录   ./底稿材料                           │
 │  🔍 索引模式   自动扫描目录生成索引                  │
@@ -242,4 +243,4 @@ Apache License 2.0 — 详见 [LICENSE](./LICENSE)
 
 ---
 
-<p align="center"><sub>Built for anyone who needs their scattered documents compiled into a single, print-ready PDF — not patched together by hand.</sub></p>
+<p align="center"><sub>散落万千，终归一页 · every file finds its place</sub></p>
