@@ -5,16 +5,17 @@
 </p>
 
 <h1 align="center">归页 Unipage</h1>
+<p align="center"><a href="README.zh.md">中文</a></p>
 <p align="center"><strong>散落万千，终归一页</strong></p>
 <p align="center"><sub>every file finds its place</sub></p>
 
 <p align="center">
-  <a href="#-快速开始">快速开始</a> ·
-  <a href="#-适用场景">适用场景</a> ·
-  <a href="#-ai-agent-支持">AI Agent</a> ·
-  <a href="#-安全">安全</a> ·
-  <a href="#-安装">安装</a> ·
-  <a href="#-许可">许可</a>
+  <a href="#quick-start">Quick Start</a> ·
+  <a href="#use-cases">Use Cases</a> ·
+  <a href="#ai-agent-support">AI Agent</a> ·
+  <a href="#security">Security</a> ·
+  <a href="#install">Install</a> ·
+  <a href="#license">License</a>
 </p>
 
 <p align="center">
@@ -23,59 +24,59 @@
 
 ---
 
-## 这是什么
+## What is this
 
-**想象一下：** 项目大功告成，只剩最后一哆嗦——把前期攒下的一堆文件汇总打印出来。就这么一个活，干起来还是好麻烦：照片歪的、扫描件横的、PDF 尺寸五花八门，最关键的是——这些文件你当时是按自己才看得懂的结构放的，过两天自己都会懵："这块我当时是怎么放的来着？"
+**Picture this:** the project is done. All that's left is collecting every file you've accumulated along the way and printing the damn thing. Just one task — and somehow still a pain. Photos are crooked, scans are sideways, PDFs come in every size imaginable. And the real kicker? You organized these files in a structure that made sense to *you at the time*. Two days later, you're already wondering: "Where did I even put that?"
 
-**归页就是为这最后一公里设计的。** 你只管按自己的习惯随便放，把根目录指给它，它自己进去翻——认得出你的结构、理得清你的文件、给每一页裁好统一边距、标上页码、生成目录书签。最后递到你手上——一本干干净净、可以直接送印的 PDF。
+**Unipage handles the last mile.** Organize however you like. Point it at the root folder, and it digs through every corner — follows your structure, sorts your files, trims uniform margins on every page, stamps page numbers, and builds a table-of-contents bookmark tree. What you get back: a clean, print-ready PDF.
 
-> *"帮我整理一下这个文件夹"* —— 就这一句话的事，三分钟拿成品。
+> *"Just tidy up this folder for me"* — one sentence, three minutes, done.
 
 ---
 
-## 🎯 适用场景
+## Use Cases
 
-不管是哪个行业、哪种材料，只要你有"把一堆零散文件变成一本规范 PDF"的需求，它都能用。**所有输出均自动附带：层级索引 + 可折叠书签 + 全局页码 + 18mm 统一页边距。**
+Any industry, any material — if you need to turn a pile of scattered files into a clean PDF, Unipage does it. **Every output automatically includes: hierarchical index + collapsible bookmarks + global page numbers + 18mm uniform margins.**
 
-| 场景 | 你手头有什么 | 最终得到什么 |
-|------|-------------|-------------|
-| **法律尽调** | 营业执照、章程、凭证扫描件、投资证书 | 一本排版整齐的尽调底稿 |
-| **财务审计** | 发票、银行回单、合同、对账单 | 一本可直接归档的审计底稿 |
-| **合规审查** | 许可证、批复文件、内部制度、合规报告 | 一本便于翻阅的合规档案 |
-| **项目归档** | 设计图纸、验收单、会议纪要 | 一本规范整洁的竣工档案 |
-| **学术研究** | 问卷、原始数据扫描件、文献摘录 | 一本印刷友好的研究材料 |
-| **招投标** | 资质证书、业绩证明、财务报表 | 一本让评委眼前一亮的投标合订本 |
+| Domain | What you have | What you get |
+|--------|--------------|--------------|
+| **Legal due diligence** | Licenses, articles, investment certificates, scanned vouchers | A neatly typeset diligence binder |
+| **Financial audit** | Invoices, bank receipts, contracts, reconciliations | An audit workpaper ready for filing |
+| **Compliance review** | Permits, approval letters, internal policies, reports | A browseable compliance archive |
+| **Project archives** | Blueprints, acceptance forms, meeting minutes | A polished project closeout record |
+| **Academic research** | Questionnaires, raw data scans, literature excerpts | A print-friendly research packet |
+| **Bids & tenders** | Qualification certificates, performance proofs, financials | A bid compilation that stands out |
 
 <details>
-<summary>📊 有它 vs 没它</summary>
+<summary>📊 Before & after</summary>
 
-| 😫 以前 | 😎 现在 |
+| 😫 Before | 😎 After |
 |---|---|
-| 手动打开每个文件，旋转、调尺寸 | 工具自动检测横纵，一键适配 |
-| 文档贴边打印，切掉一半内容 | 统一 18mm 边距，安全出纸 |
-| 翻几百页找文件，全靠肉眼扫 | 书签导航 + 目录索引，秒级跳转 |
-| 一下午拼一本，拼完发现页码乱了 | 三分钟自动完成，页码一字不差 |
-| 换台电脑、换个项目得重新来一遍 | 一条命令，知识库、审计稿、标书全搞定 |
+| Open every file by hand — rotate, resize, repeat | Auto-detect orientation, one-pass adapt |
+| Documents print edge-to-edge, content gets clipped | 18mm safe margins on every page |
+| Flip through hundreds of pages hunting by eye | Bookmark nav + table of contents, instant jump |
+| Spend an afternoon assembling, then realize the page numbers are wrong | Three minutes, numbers dead-on |
+| New machine, new project — do it all over again | One command works for archives, audits, bids, anything |
 
 </details>
 
-## ✨ 它为你做了什么
+## What it does for you
 
-| 🧠 能力 | 💬 说人话 |
-|---------|----------|
-| **🔍 自动索引** | 不用手写目录，扫一眼文件夹结构，自动生成层级索引页 |
-| **📑 PDF 书签** | 哪怕一千六百页，左边书签一点就到，比翻纸质书还快 |
-| **🖼️ 智能包裹** | 图片不切不拉伸，PDF 自动选最好的方式放进去——不糊、不歪、不缺 |
-| **📐 打印就绪** | 18mm 页边距护体，横页竖页自动适配，送到文印室直接开打 |
-| **⚡ 快路径优先** | 95% 的页面走"激光打印"级别的高清矢量路径，实在不行才降级保底 |
+| Capability | In plain English |
+|------------|-----------------|
+| **Auto-index** | Scans your folder tree and builds a hierarchical index — no hand-written table of contents |
+| **PDF bookmarks** | Even a thousand pages — click the bookmark and you're there, faster than flipping paper |
+| **Smart wrapping** | Images stay proportional, never cropped or stretched. PDFs get the best rendering path automatically — no blur, no skew, no loss |
+| **Print-ready** | 18mm margins on every page, landscape/portrait auto-detected. Send straight to the print shop |
+| **Fast path first** | 95% of pages take the high-fidelity vector path. Only edge cases fall back to raster |
 
-## 📦 安装
+## Install
 
 ```bash
 pip install git+https://github.com/bangchuiLee/unipage.git
 ```
 
-或本地克隆：
+Or clone locally:
 
 ```bash
 git clone https://github.com/bangchuiLee/unipage.git
@@ -83,62 +84,62 @@ cd unipage
 pip install .
 ```
 
-依赖：
+Dependencies:
 
-| 包 | 版本 | 用途 |
-|----|------|------|
-| PyMuPDF | ≥1.24 | PDF 渲染/拆分 |
-| reportlab | ≥4.0 | 索引页 + 页码生成 |
-| pypdf | ≥5.0 | PDF 合并 + 书签 |
-| Pillow | ≥10.0 | 图片处理 |
-| openpyxl | ≥3.1 | xlsx 索引读取 |
+| Package | Version | Purpose |
+|---------|---------|---------|
+| PyMuPDF | ≥1.24 | PDF rendering & splitting |
+| reportlab | ≥4.0 | Index pages & page numbers |
+| pypdf | ≥5.0 | PDF merging & bookmarks |
+| Pillow | ≥10.0 | Image processing |
+| openpyxl | ≥3.1 | xlsx index reading |
 
-## 🚀 快速开始
+## Quick Start
 
-### 零配置 — 自动索引
+### Zero config — auto-index
 
 ```bash
-diligence-pdf assemble ./我的材料 -o 归档文件.pdf
+diligence-pdf assemble ./my-files -o archive.pdf
 ```
 
-跑起来之后，你会看到：
+Once it runs, you'll see:
 
 ```
-$ diligence-pdf assemble ./底稿材料 -o 尽调底稿.pdf
+$ diligence-pdf assemble ./project-files -o archive.pdf
 
 ╭──────────────────────────────────────────────────╮
-│  归页 v1.0                                     │
-│                                                    │
-│  📂 输入目录   ./底稿材料                           │
-│  🔍 索引模式   自动扫描目录生成索引                  │
-│  📑 索引条目   52                                   │
-│  📄 找到文件   142 个 (图片 89 + PDF 53)            │
-│                                                    │
-│  [████████████████████] 100% (142/142)              │
-│                                                    │
-│  ✅ 处理完成   耗时 2 分 18 秒                       │
-│  📏 总页数     1,696 页                             │
+│  归页 v1.0                                       │
+│                                                  │
+│  📂 Input dir    ./project-files                  │
+│  🔍 Index mode   auto-scan directory              │
+│  📑 Index pages  N                                │
+│  📄 Files found  N (images A + PDFs B)            │
+│                                                  │
+│  [████████████████████] 100% (N/N)                │
+│                                                  │
+│  ✅ Done         X min Y sec                      │
+│  📏 Total pages  N                                │
 ╰──────────────────────────────────────────────────╯
 ```
 
 <p align="center">
-  <img src="docs/pipeline.svg" alt="处理流程图" width="800">
+  <img src="docs/pipeline.svg" alt="Processing pipeline" width="800">
 </p>
 
-输入目录结构：
+Input structure:
 
 ```
-项目文档/
-  ├── 01-公司设立/
-  │   ├── 营业执照.jpg
-  │   ├── 章程.pdf
-  │   └── 股东名册/
+project-docs/
+  ├── 01-incorporation/
+  │   ├── business-license.jpg
+  │   ├── articles.pdf
+  │   └── shareholder-register/
   │       └── ...
-  ├── 02-历次变更/
+  ├── 02-changes/
   └── ...
 ```
 
-目录名自动成为索引标题，子文件夹二级索引。输出一份带书签、页码、统一边距的 PDF。
+Folder names become index headings. Subfolders become secondary index entries. Output: one PDF with bookmarks, page numbers, and uniform margins.
 
 ### Python API
 
@@ -149,13 +150,13 @@ assemble({
     "input_dir": "/path/to/documents",
     "output_path": "/path/to/output.pdf",
     "index_mode": "auto",       # auto / pdf / none
-    "image_mode": "fit",        # fit（等比） / split（长图切分）
+    "image_mode": "fit",        # fit / split
     "add_bookmarks": True,
     "add_page_numbers": True,
 })
 ```
 
-### 预转换索引 PDF
+### Pre-built index PDF
 
 ```python
 assemble({
@@ -166,80 +167,80 @@ assemble({
 })
 ```
 
-## 🔧 PDF 包裹决策树
+## PDF wrapping decision tree
 
 ```
-输入 PDF 页面
+Input PDF page
   │
-  ├─ A4 + 有边距 + 无旋转异常 → 原样通过（矢量、零开销）
+  ├─ A4 + has margins + no rotation issues → pass-through (vector, zero overhead)
   │
-  ├─ 近 A4 + 无旋转异常 → show_pdf_page 矢量包裹（快）
+  ├─ Near A4 + no rotation issues → show_pdf_page vector wrap (fast)
   │
-  └─ 非标准尺寸 或 旋转异常 → 150dpi pixmap 渲染（可靠回退）
+  └─ Non-standard size OR rotation issues → 150dpi pixmap render (reliable fallback)
 ```
 
-## 🤖 AI Agent 支持
+## AI Agent support
 
-本工具设计为 **纯 Python 函数 + CLI**，不依赖特定框架，任何能执行 Python 代码的 AI Agent 均可直接调用。
+Unipage is a **pure Python function + CLI** with zero framework dependencies. Any AI agent that can execute Python can call it directly.
 
-| Agent / 平台 | 使用方式 |
+| Agent / Platform | How to use |
 |---|---|
-| **Claude Code** | `pip install .` 后直接 `from diligence_pdf import assemble` |
-| **Claude Desktop (MCP)** | 通过 Python 脚本 MCP Server 暴露 `assemble()` 为 tool |
-| **OpenAI Codex CLI** | 支持 `pip install` + 函数调用，自动发现 API |
-| **ChatGPT (Code Interpreter)** | 上传 whl 或 pip install git+URL，沙箱内直接 import |
-| **Cursor / Windsurf** | 环境内 pip install 后即可在对话中调用 |
-| **Aider** | 支持任意 Python 模块导入，无需额外适配 |
-| **Gemini CLI** | 标准 Python 包，`pip install` 后 import 即用 |
-| **GitHub Copilot Coding Agent** | 安装后自动补全建议 `assemble()` 调用 |
-| **Devin** | 标准 pip 安装，可在 task 中调用 |
+| **Claude Code** | `pip install .` then `from diligence_pdf import assemble` |
+| **Claude Desktop (MCP)** | Expose `assemble()` as a tool via Python MCP server |
+| **OpenAI Codex CLI** | Supports `pip install` + function calling, auto-discovers API |
+| **ChatGPT (Code Interpreter)** | Upload wheel or `pip install git+URL`, import directly in sandbox |
+| **Cursor / Windsurf** | `pip install` in environment, call directly |
+| **Aider** | Supports arbitrary Python module imports, no adaptation needed |
+| **Gemini CLI** | Standard Python package, `pip install` then import |
+| **GitHub Copilot Coding Agent** | Autocomplete suggests `assemble()` after install |
+| **Devin** | Standard `pip install`, callable in tasks |
 
-> **关键设计**：入口函数 `assemble(config: dict) -> str` 接受纯字典参数，无类型注解依赖、无异步操作、无状态副作用。任何 Agent 只需构造一个 dict 即可调用。
+> **Design note**: the entry point `assemble(config: dict) -> str` takes a plain dict — no type annotations required, no async, no side effects. Any agent just constructs a dict and calls it.
 
-## 🔒 安全
+## Security
 
-### 零网络承诺
+### Zero-network guarantee
 
-本工具**完全本地运行**。不会、也不需要发起任何网络请求：
+Unipage runs **entirely offline**. It does not, and never needs to, make any network requests:
 
-- ❌ 无 API 调用
-- ❌ 无遥测 / 埋点
-- ❌ 无数据上传
-- ❌ 无凭据存储
-- ❌ 无第三方服务依赖
+- No API calls
+- No telemetry
+- No data uploads
+- No credential storage
+- No third-party services
 
-你可以断网运行，抓包验证，审计源码——总共 1200 行 Python，无混淆、无动态执行。
+Run it air-gapped. Packet-capture it. Audit the source — ~1,200 lines of Python, no obfuscation, no dynamic execution.
 
-### 依赖审计
+### Dependency audit
 
-| 依赖 | 许可证 | 下载量 |
-|------|--------|--------|
+| Dependency | License | Downloads |
+|------------|---------|-----------|
 | PyMuPDF | AGPL | 50M+ |
 | reportlab | BSD | 30M+ |
 | pypdf | BSD | 80M+ |
 | Pillow | HPND-C | 500M+ |
 | openpyxl | MIT | 200M+ |
 
-所有依赖均为 PyPI 官方包，许可证均允许本地使用。
+All dependencies are from the official PyPI registry and their licenses permit local use.
 
-> ⚠️ **注意**：PyMuPDF 使用 AGPL v3。本地 CLI / AI Agent 调用不触发 copyleft 条款。如需商用 SaaS 部署（网络分发），请替换为纯 pypdf 方案或咨询法律顾问。
+> ⚠️ **Note**: PyMuPDF uses AGPL v3. Local CLI / AI agent invocation does not trigger copyleft terms. For commercial SaaS deployment (network distribution), replace with a pure pypdf solution or consult legal counsel.
 
-## ⚙️ 完整配置
+## Configuration
 
-| 参数 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `input_dir` | Path | 必填 | 底稿根目录 |
-| `output_path` | Path | 必填 | 输出 PDF 路径 |
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `input_dir` | Path | required | Root directory of source documents |
+| `output_path` | Path | required | Output PDF path |
 | `index_mode` | str | `auto` | `auto` / `pdf` / `none` |
-| `index_source` | Path | — | 索引 PDF（`pdf` 模式） |
-| `image_mode` | str | `fit` | `fit`（等比缩放）/ `split`（长图切分） |
-| `add_bookmarks` | bool | `true` | PDF 书签 |
-| `add_page_numbers` | bool | `true` | 页码 |
-| `include_tables` | bool | `false` | 尝试处理 xls/xlsx |
+| `index_source` | Path | — | Index PDF (for `pdf` mode) |
+| `image_mode` | str | `fit` | `fit` (proportional) / `split` (long image crop) |
+| `add_bookmarks` | bool | `true` | PDF bookmarks |
+| `add_page_numbers` | bool | `true` | Page numbers |
+| `include_tables` | bool | `false` | Attempt xls/xlsx processing |
 
-## 📄 许可
+## License
 
-Apache License 2.0 — 详见 [LICENSE](./LICENSE)
+Apache License 2.0 — see [LICENSE](./LICENSE)
 
 ---
 
