@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-主流水线 — 组装索引树 + 文件处理 + 合并 + 页码 + 书签
+主流水线 — 组装索引树 + 文件处理（分段吐盘） + 合并 + 页码 + 书签
 """
 
 import io
@@ -29,8 +29,80 @@ from scripts.pagenum import add_page_numbers
 from scripts.xlsx_formatter import format_xlsx
 
 
-def _process_file(filepath, writer, image_mode='fit', progress=None):
-    """处理单个文件加入 PdfWriter"""
+# ── 分段写盘 ────────────────────────────────────────
+CHUNK_SIZE = 300  # 每段最多页数，达到后自动吐盘
+
+
+class _ChunkWriter:
+    """包装 PdfWriter，达到阈值时自动分段写盘，控制内存占用。"""
+
+    def __init__(self, chunk_size=CHUNK_SIZE):
+        self._chunk_size = chunk_size
+        self._chunks = []       # [(temp_path, page_count), ...]
+        self._writer = PdfWriter()
+        self._page_base = 0     # 前面已吐盘的页数累计
+
+    def add_page(self, page):
+        self._writer.add_page(page)
+        if len(self._writer.pages) >= self._chunk_size:
+            self._flush()
+
+    @property
+    def pages(self):
+        """当前段内的页面列表"""
+        return self._writer.pages
+
+    def global_page(self):
+        """当前段内下个页面在最终 PDF 中的全局页码（1-based）"""
+        return self._page_base + len(self._writer.pages) + 1
+
+    def _flush(self):
+        if len(self._writer.pages) == 0:
+            return
+        f = tempfile.mktemp(suffix='.pdf')
+        with open(f, 'wb') as fp:
+            self._writer.write(fp)
+        n = len(self._writer.pages)
+        self._chunks.append((f, n))
+        self._page_base += n
+        print(f"\n  [chunk] 段 {len(self._chunks)} 已写盘 ({n} 页，累计 {self._page_base} 页)")
+        self._writer = PdfWriter()
+
+    def finish(self, output_path):
+        """合并所有分段 → 写最终 PDF → 清理分段临时文件。返回总页数。"""
+        self._flush()  # 最后一段
+
+        if len(self._chunks) == 0:
+            # 没有任何页面
+            return 0
+
+        if len(self._chunks) == 1:
+            # 只有一段，直接移动
+            import shutil
+            shutil.copy2(self._chunks[0][0], output_path)
+            total = self._chunks[0][1]
+        else:
+            merger = PdfWriter()
+            total = 0
+            for path, n in self._chunks:
+                merger.append(path)
+                total += n
+            merger.write(output_path)
+
+        # 清理分段文件
+        for path, _ in self._chunks:
+            try:
+                os.remove(path)
+            except OSError:
+                pass
+
+        return total
+
+
+# ── 文件处理 ────────────────────────────────────────
+
+def _process_file(filepath, ctx, image_mode='fit', progress=None):
+    """处理单个文件，页面加入 _ChunkWriter"""
     fname = filepath.name
     ext = filepath.suffix.lower()
 
@@ -40,10 +112,10 @@ def _process_file(filepath, writer, image_mode='fit', progress=None):
                 chunks = split_image_pages(str(filepath))
                 for chunk_img, is_landscape in chunks:
                     buf = chunk_to_page(chunk_img, is_landscape)
-                    writer.add_page(PdfReader(buf).pages[0])
+                    ctx.add_page(PdfReader(buf).pages[0])
             else:
                 buf = image_to_page(str(filepath))
-                writer.add_page(PdfReader(buf).pages[0])
+                ctx.add_page(PdfReader(buf).pages[0])
         except Exception as e:
             print(f"\n  [SKIP] {fname}: {e}")
 
@@ -58,16 +130,15 @@ def _process_file(filepath, writer, image_mode='fit', progress=None):
                 buf = wrap_pdf_page(src, pn)
                 r = PdfReader(buf)
                 for pg in r.pages:
-                    writer.add_page(pg)
+                    ctx.add_page(pg)
             except Exception as e:
                 print(f"\n  [SKIP] {fname} p{pn+1}: {e}")
         src.close()
 
     elif ext in TABLE_EXTS:
-        # 如果同目录已有同名 PDF，说明用户已手动转换，跳过
         pdf_sibling = filepath.with_suffix('.pdf')
         if pdf_sibling.exists():
-            pass  # 已有 PDF，静默跳过
+            pass
         else:
             try:
                 result = format_xlsx(str(filepath))
@@ -76,8 +147,8 @@ def _process_file(filepath, writer, image_mode='fit', progress=None):
                     f"{s['name']}({s['rows']}行×{s['cols']}列,{s['orientation']})"
                     for s in result["sheets"]
                 )
-                print(f"\n  [XLSX] {fname} 已格式化 → {Path(formatted).name}")
-                print(f"         请用 Excel 打开 → Ctrl+P 打印为 PDF，放回原目录")
+                print(f"\n  [XLSX] {fname} 已格式化 -> {Path(formatted).name}")
+                print(f"         请用 Excel 打开 -> Ctrl+P 打印为 PDF，放回原目录")
                 print(f"         共 {len(result['sheets'])} 个 sheet: {sheets_info}")
             except Exception as e:
                 print(f"\n  [XLSX] {fname}: 格式化失败 ({e})，请手动转换为 PDF")
@@ -91,60 +162,62 @@ def _process_file(filepath, writer, image_mode='fit', progress=None):
         print(f"\r  [{bar}] {pct}% ({done}/{total})", end='', flush=True)
 
 
-def _process_node(node, writer, index_paths, page_map, config, progress=None):
-    """处理索引树节点（递归）"""
+def _process_node(node, ctx, index_paths, page_map, config, progress=None):
+    """处理索引树节点（递归），页面加入 _ChunkWriter"""
     image_mode = config.get('image_mode', 'fit')
-    page_map[node['page_num']] = len(writer.pages) + 1
+    page_map[node['page_num']] = ctx.global_page()
 
     # 索引页
     if node.get('index_pdf_path'):
         r = PdfReader(node['index_pdf_path'])
-        writer.add_page(r.pages[0])
+        ctx.add_page(r.pages[0])
     elif node.get('gen_index'):
         buf = make_index_page(node['title'], node.get('font_size', 16), node.get('alignment', 'left'))
-        writer.add_page(PdfReader(buf).pages[0])
+        ctx.add_page(PdfReader(buf).pages[0])
 
     # 内容
     node_type = node.get('type', 'folder')
     if node_type == 'folder':
         files = collect_folder(node['path'], config.get('include_tables', False))
         for f in files:
-            _process_file(f, writer, image_mode, progress)
+            _process_file(f, ctx, image_mode, progress)
 
     elif node_type == 'file':
         if node['path'].exists():
-            _process_file(node['path'], writer, image_mode, progress)
+            _process_file(node['path'], ctx, image_mode, progress)
 
     elif node_type == 'index_only':
-        pass  # 只放索引页，无内容
+        pass
 
     # 子节点
     for child in node.get('children', []):
-        _process_node(child, writer, index_paths, page_map, config, progress)
+        _process_node(child, ctx, index_paths, page_map, config, progress)
 
+
+# ── 主入口 ──────────────────────────────────────────
 
 def assemble(config):
     """
     主入口。
     config 必需: input_dir, output_path
     config 可选: index_mode, index_source, image_mode, margin,
-                 add_bookmarks, add_page_numbers, include_tables
+                 add_bookmarks, add_page_numbers, include_tables, chunk_size
     """
     input_dir = Path(config['input_dir'])
     output_path = Path(config['output_path'])
     t_start = time.time()
 
-    print("+" + "-" * 50 + "+")
-    print(f"|  Unipage v1.0{' ' * 35}|")
-    print("|" + " " * 50 + "|")
-    print(f"|  [dir] 输入目录   {str(input_dir)[:37]:<37} |")
+    print("+" + "-" * 48 + "+")
+    print(f"|  Unipage v1.0{' ' * 33}|")
+    print("|" + " " * 48 + "|")
+    print(f"|  [dir] {str(input_dir)[:38]:<38} |")
 
     # Phase 1: 构建索引树
     index_mode = config.get('index_mode', 'auto')
     index_source = config.get('index_source')
 
     if index_mode == 'auto':
-        print("|  [scan] 索引模式   自动扫描目录生成索引                  |")
+        print("|  [scan] 自动扫描目录生成索引                          |")
         index_tree = auto_index_from_folders(input_dir)
         for entry in index_tree:
             has_children = bool(entry.get('children'))
@@ -153,13 +226,13 @@ def assemble(config):
             for child in entry.get('children', []):
                 child['type'] = 'folder'
                 child['gen_index'] = True
-        print(f"|  [idx] 索引条目   {len(index_tree):<37} |")
+        print(f"|  [idx] {len(index_tree)} 个索引条目{' ' * (36 - len(str(len(index_tree))))} |")
 
     elif index_mode == 'pdf' and index_source:
-        print("|  [scan] 索引模式   使用预转换索引 PDF                       |")
+        print("|  [scan] 使用预转换索引 PDF                             |")
         index_dir = Path(tempfile.gettempdir()) / "_idx_pages"
         index_paths = split_index_pdf(Path(index_source), index_dir)
-        print(f"|  [idx] 索引页数   {len(index_paths):<37} |")
+        print(f"|  [idx] {len(index_paths)} 页{' ' * (38 - len(str(len(index_paths))))} |")
 
         items = sorted([d for d in input_dir.iterdir() if d.is_dir() and not should_skip(d.name)],
                        key=lambda x: x.name)
@@ -190,7 +263,7 @@ def assemble(config):
             index_tree.append(entry)
 
     elif index_mode == 'none':
-        print("|  [scan] 索引模式   无索引（直接合并）                        |")
+        print("|  [scan] 无索引（直接合并）                            |")
         index_tree = [{
             "page_num": 1,
             "title": input_dir.name,
@@ -237,45 +310,36 @@ def assemble(config):
     for entry in index_tree:
         _count_in_node(entry)
 
-    print(f"|  [file] 找到文件   {total_files} 个 (图片 {img_count} + PDF {pdf_count}){' ' * max(0, 15 - len(str(total_files)))} |")
-    print("|" + " " * 50 + "|")
+    print(f"|  [file] {total_files} 个 (图片 {img_count} + PDF {pdf_count}){' ' * max(0, 17 - len(str(total_files)))} |")
+    print("|" + " " * 48 + "|")
 
-    # Phase 2: 处理文件
+    # Phase 2: 处理文件（分段吐盘）
     progress = {'done': 0, 'total': total_files}
-    writer = PdfWriter()
+    ctx = _ChunkWriter(config.get('chunk_size', CHUNK_SIZE))
     page_map = {}
 
     for entry in index_tree:
-        _process_node(entry, writer, None, page_map, config, progress)
+        _process_node(entry, ctx, None, page_map, config, progress)
 
-    print()  # 换行结束进度条
+    print()
 
-    total_pages = len(writer.pages)
+    # Phase 3: 合并分段 → 写输出
+    print("|  [merge] 合并分段...                                    |")
+    total_pages = ctx.finish(output_path)
 
-    # Phase 3: 保存临时 + 页码
-    tmp_pdf = tempfile.mktemp(suffix='.pdf')
-    with open(tmp_pdf, 'wb') as fp:
-        writer.write(fp)
+    # Phase 4: 页码 + 书签
+    add_page_numbers(output_path, output_path)
 
-    add_page_numbers(tmp_pdf, tmp_pdf)
-
-    # Phase 4: 书签
     if config.get('add_bookmarks', True):
         bms = collect_bookmarks_from_index_tree(index_tree, page_map)
-        add_bookmarks(tmp_pdf, bms, tmp_pdf)
-
-    # Phase 5: 输出
-    os.makedirs(output_path.parent, exist_ok=True) if output_path.parent != output_path else None
-    import shutil
-    shutil.copy2(tmp_pdf, output_path)
-    os.remove(tmp_pdf)
+        add_bookmarks(output_path, bms, output_path)
 
     elapsed = time.time() - t_start
     mins = int(elapsed // 60)
     secs = int(elapsed % 60)
     time_str = f"{mins} 分 {secs} 秒" if mins > 0 else f"{secs} 秒"
 
-    print(f"|  [OK] 处理完成   耗时 {time_str}{' ' * max(0, 32 - len(time_str))} |")
-    print(f"|  [pages] 总页数     {total_pages} 页{' ' * max(0, 30 - len(str(total_pages)))} |")
-    print("+" + "-" * 50 + "+")
+    print(f"|  [OK] {time_str}{' ' * (42 - len(time_str))} |")
+    print(f"|  [pages] {total_pages} 页{' ' * (37 - len(str(total_pages)))} |")
+    print("+" + "-" * 48 + "+")
     return str(output_path)
