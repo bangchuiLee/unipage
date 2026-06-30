@@ -82,7 +82,7 @@ def _process_file(filepath, writer, image_mode='fit', progress=None):
         done = progress['done']
         total = progress['total']
         pct = done * 100 // total if total > 0 else 100
-        bar = '\u2588' * (pct // 5) + '\u2591' * (20 - pct // 5)
+        bar = '#' * (pct // 5) + '.' * (20 - pct // 5)
         print(f"\r  [{bar}] {pct}% ({done}/{total})", end='', flush=True)
 
 
@@ -129,17 +129,17 @@ def assemble(config):
     output_path = Path(config['output_path'])
     t_start = time.time()
 
-    print("╭" + "─" * 50 + "╮")
-    print(f"│  Unipage v1.0{' ' * 35}│")
-    print("│" + " " * 50 + "│")
-    print(f"│  \U0001f4c2 输入目录   {str(input_dir)[:37]:<37} │")
+    print("+" + "-" * 50 + "+")
+    print(f"|  Unipage v1.0{' ' * 35}|")
+    print("|" + " " * 50 + "|")
+    print(f"|  [dir] 输入目录   {str(input_dir)[:37]:<37} |")
 
     # Phase 1: 构建索引树
     index_mode = config.get('index_mode', 'auto')
     index_source = config.get('index_source')
 
     if index_mode == 'auto':
-        print("│  \U0001f50d 索引模式   自动扫描目录生成索引                  │")
+        print("|  [scan] 索引模式   自动扫描目录生成索引                  |")
         index_tree = auto_index_from_folders(input_dir)
         for entry in index_tree:
             entry['type'] = 'folder'
@@ -147,13 +147,13 @@ def assemble(config):
             for child in entry.get('children', []):
                 child['type'] = 'folder'
                 child['gen_index'] = True
-        print(f"│  \U0001f4d1 索引条目   {len(index_tree):<37} │")
+        print(f"|  [idx] 索引条目   {len(index_tree):<37} |")
 
     elif index_mode == 'pdf' and index_source:
-        print("│  \U0001f50d 索引模式   使用预转换索引 PDF                       │")
+        print("|  [scan] 索引模式   使用预转换索引 PDF                       |")
         index_dir = Path(tempfile.gettempdir()) / "_idx_pages"
         index_paths = split_index_pdf(Path(index_source), index_dir)
-        print(f"│  \U0001f4d1 索引页数   {len(index_paths):<37} │")
+        print(f"|  [idx] 索引页数   {len(index_paths):<37} |")
 
         items = sorted([d for d in input_dir.iterdir() if d.is_dir() and not should_skip(d.name)],
                        key=lambda x: x.name)
@@ -184,7 +184,7 @@ def assemble(config):
             index_tree.append(entry)
 
     elif index_mode == 'none':
-        print("│  \U0001f50d 索引模式   无索引（直接合并）                        │")
+        print("|  [scan] 索引模式   无索引（直接合并）                        |")
         index_tree = [{
             "page_num": 1,
             "title": input_dir.name,
@@ -231,8 +231,8 @@ def assemble(config):
     for entry in index_tree:
         _count_in_node(entry)
 
-    print(f"│  \U0001f4c4 找到文件   {total_files} 个 (图片 {img_count} + PDF {pdf_count}){' ' * max(0, 15 - len(str(total_files)))} │")
-    print("│" + " " * 50 + "│")
+    print(f"|  [file] 找到文件   {total_files} 个 (图片 {img_count} + PDF {pdf_count}){' ' * max(0, 15 - len(str(total_files)))} |")
+    print("|" + " " * 50 + "|")
 
     # Phase 2: 处理文件
     progress = {'done': 0, 'total': total_files}
@@ -269,7 +269,7 @@ def assemble(config):
     secs = int(elapsed % 60)
     time_str = f"{mins} 分 {secs} 秒" if mins > 0 else f"{secs} 秒"
 
-    print(f"│  \u2705 处理完成   耗时 {time_str}{' ' * max(0, 32 - len(time_str))} │")
-    print(f"│  \U0001f4cf 总页数     {total_pages} 页{' ' * max(0, 30 - len(str(total_pages)))} │")
-    print("╰" + "─" * 50 + "╯")
+    print(f"|  [OK] 处理完成   耗时 {time_str}{' ' * max(0, 32 - len(time_str))} |")
+    print(f"|  [pages] 总页数     {total_pages} 页{' ' * max(0, 30 - len(str(total_pages)))} |")
+    print("+" + "-" * 50 + "+")
     return str(output_path)
