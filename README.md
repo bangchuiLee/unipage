@@ -237,6 +237,21 @@ assemble({
 | `add_bookmarks` | bool | `true` | PDF 书签 |
 | `add_page_numbers` | bool | `true` | 页码 |
 | `include_tables` | bool | `false` | 尝试处理 xls/xlsx |
+| `chunk_size` | int | `300` | 每段最大页数，达到后自动写盘 |
+| `resume_chunks` | Path | — | 断点续跑：已有分段目录路径 |
+
+### 🤔 选项选择指南
+
+| 场景 | 建议 |
+|------|------|
+| **文件量 > 1000 且内存 < 8GB** | 设 `chunk_size=200`，降低单段内存峰值 |
+| **文件量 > 5000** | `chunk_size=150`，分段更频繁 |
+| **运行中途空间不足 / 进程被杀** | 保留 `_chunks\` 目录，下次用 `resume_chunks` 指向它续跑 |
+| **只需要合并、不需要书签** | `add_bookmarks=False`，省去 page_map 计算开销 |
+| **不需要页码** | `add_page_numbers=False`，省去全文重写 |
+| **银行流水截图（长图）** | `image_mode='split'`，自动切分为多页 |
+| **已手动转换了 xlsx** | 同名 `.pdf` 放在 xlsx 同目录即可，归页自动跳过表格 |
+| **断点续跑后书签可能偏移** | 关闭书签重跑，或接受少量偏移 |
 
 ## 📄 许可
 

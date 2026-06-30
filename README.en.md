@@ -237,6 +237,21 @@ All dependencies are from the official PyPI registry and their licenses permit l
 | `add_bookmarks` | bool | `true` | PDF bookmarks |
 | `add_page_numbers` | bool | `true` | Page numbers |
 | `include_tables` | bool | `false` | Attempt xls/xlsx processing |
+| `chunk_size` | int | `300` | Max pages per chunk before flushing to disk |
+| `resume_chunks` | Path | — | Resume from existing chunk directory |
+
+### Choosing options
+
+| Scenario | Recommendation |
+|----------|---------------|
+| **1,000+ files, < 8GB RAM** | Set `chunk_size=200` to lower peak memory |
+| **5,000+ files** | `chunk_size=150` for more frequent flushing |
+| **Ran out of disk space / process killed** | Keep the `_chunks\` folder, point `resume_chunks` to it |
+| **Don't need bookmarks** | `add_bookmarks=False` to skip page_map overhead |
+| **Don't need page numbers** | `add_page_numbers=False` to avoid full rewrite |
+| **Long bank statement screenshots** | `image_mode='split'` to auto-slice into pages |
+| **Already converted xlsx by hand** | Put same-name `.pdf` next to the xlsx, tool auto-skips |
+| **Bookmarks may shift after resume** | Disable bookmarks and re-run, or accept minor drift |
 
 ## License
 
