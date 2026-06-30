@@ -217,12 +217,13 @@ def _process_file(filepath, ctx, image_mode='fit', progress=None):
 
 
 def _update_progress_bar(progress):
-    """刷新进度条显示"""
+    """刷新进度条显示——PowerShell 兼容，每 10 个文件或整百分比时输出一行"""
     done = progress['done']
     total = progress['total']
     pct = done * 100 // total if total > 0 else 100
     bar = '#' * (pct // 5) + '.' * (20 - pct // 5)
-    print(f"\r  [{bar}] {pct}% ({done}/{total})", end='', flush=True)
+    if done % 10 == 0 or done == total:
+        print(f"  [{bar}] {pct}% ({done}/{total})")
 
 
 def _process_node(node, ctx, index_paths, page_map, config, progress=None):
