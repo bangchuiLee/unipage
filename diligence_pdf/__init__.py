@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-diligence-pdf — 尽调底稿 PDF 汇集
-==================================
+归页 Unipage · every file finds its place
+===========================================
+文档汇集工具 — 扫描文件夹自动建索引，智能包裹图片/PDF，生成带书签和页码的单一 PDF。
+
 用法:
   python -m diligence_pdf assemble /path/to/dir -o output.pdf
   python -m diligence_pdf assemble /path/to/dir --index-mode auto -o output.pdf

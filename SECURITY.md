@@ -25,7 +25,7 @@
 
 ## 报告漏洞
 
-请通过 [GitHub Issues](https://github.com/superle/diligence-pdf/issues) 报告安全问题。如涉及敏感信息，请私密提交或邮件联系。
+请通过 [GitHub Issues](https://github.com/bangchuiLee/unipage/issues) 报告安全问题。
 
 ## 支持版本
 

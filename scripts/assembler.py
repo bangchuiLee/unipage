@@ -119,7 +119,7 @@ def assemble(config):
     t_start = time.time()
 
     print("╭" + "─" * 50 + "╮")
-    print(f"│  Diligence PDF v1.0{' ' * 31}│")
+    print(f"│  Unipage v1.0{' ' * 35}│")
     print("│" + " " * 50 + "│")
     print(f"│  \U0001f4c2 输入目录   {str(input_dir)[:37]:<37} │")
 

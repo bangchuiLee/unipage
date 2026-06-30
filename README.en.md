@@ -108,7 +108,7 @@ Once it runs, you'll see:
 $ diligence-pdf assemble ./project-files -o archive.pdf
 
 ╭──────────────────────────────────────────────────╮
-│  归页 v1.0                                       │
+│  Unipage v1.0                                   │
 │                                                  │
 │  📂 Input dir    ./project-files                  │
 │  🔍 Index mode   auto-scan directory              │

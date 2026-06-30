@@ -9,11 +9,11 @@ from diligence_pdf import assemble
 
 
 def main():
-    p = argparse.ArgumentParser(prog="diligence-pdf", description="尽调底稿 PDF 汇集")
+    p = argparse.ArgumentParser(prog="diligence-pdf", description="归页 Unipage · 文档汇集 PDF 工具")
     sub = p.add_subparsers(dest="cmd")
 
-    a = sub.add_parser("assemble", help="合并底稿为PDF")
-    a.add_argument("input_dir", help="底稿根目录")
+    a = sub.add_parser("assemble", help="合并文件夹为 PDF")
+    a.add_argument("input_dir", help="输入根目录")
     a.add_argument("-o", "--output", required=True, help="输出 PDF 路径")
     a.add_argument("--index-mode", default="auto", choices=["auto", "pdf", "none"])
     a.add_argument("--index-source", help="预转换索引 PDF 路径（pdf 模式）")
