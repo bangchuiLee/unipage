@@ -50,22 +50,35 @@ class _ChunkWriter:
             self._load_existing(Path(resume_dir))
 
     def _load_existing(self, d):
-        """从已有分段目录恢复，设置 page_base 和 files_done。"""
+        """从已有分段目录恢复，设置 page_base 和 files_done。损坏的分段自动跳过。"""
         paths = sorted(d.glob("_chunk_*.pdf"))
         if not paths:
             return
         total_pages = 0
+        skipped = 0
         for p in paths:
-            r = PdfReader(str(p))
-            n = len(r.pages)
-            self._chunks.append((str(p), n))
-            total_pages += n
+            try:
+                r = PdfReader(str(p))
+                n = len(r.pages)
+                self._chunks.append((str(p), n))
+                total_pages += n
+            except Exception:
+                skipped += 1
+                p.unlink()
         self._page_base = total_pages
 
         # 读取进度文件
         progress_file = d / ".progress"
         if progress_file.exists():
-            self._files_done = int(progress_file.read_text().strip())
+            data = progress_file.read_text().strip().split('\n')
+            self._files_done = int(data[0])
+            # 有跳过的分段时，保守回退进度
+            if skipped > 0 and len(data) > 1:
+                total = int(data[1])
+                # 每个完整分段约 300 页，估算回退文件数
+                est_pages_per_chunk = max(total_pages / len(self._chunks), 300) if self._chunks else 300
+                est_files_per_chunk = est_pages_per_chunk * self._files_done / max(total_pages + est_pages_per_chunk * skipped, 1)
+                self._files_done = max(0, int(self._files_done - est_files_per_chunk * skipped))
 
     def save_progress(self, files_done, total):
         """保存进度到临时目录，用于断点续跑。"""
@@ -97,7 +110,7 @@ class _ChunkWriter:
         self._chunks.append((f, n))
         self._page_base += n
         self._writer = PdfWriter()
-        # 每吐一段就记录进度
+        # 每吐一段就记录进度（files_done 由外层更新后调用 save_progress）
         if self._files_done > 0:
             self.save_progress(self._files_done, 0)
 
@@ -199,6 +212,7 @@ def _process_file(filepath, ctx, image_mode='fit', progress=None):
 
     if progress is not None:
         progress['done'] += 1
+        ctx._files_done = progress['done']  # 同步到 ChunkWriter，用于断点进度保存
         _update_progress_bar(progress)
 
 
