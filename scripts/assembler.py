@@ -36,11 +36,13 @@ CHUNK_SIZE = 300  # 每段最多页数，达到后自动吐盘
 class _ChunkWriter:
     """包装 PdfWriter，达到阈值时自动分段写盘，控制内存占用。"""
 
-    def __init__(self, chunk_size=CHUNK_SIZE):
+    def __init__(self, chunk_size=CHUNK_SIZE, temp_dir=None):
         self._chunk_size = chunk_size
         self._chunks = []       # [(temp_path, page_count), ...]
         self._writer = PdfWriter()
         self._page_base = 0     # 前面已吐盘的页数累计
+        self._temp_dir = Path(temp_dir) if temp_dir else Path(tempfile.gettempdir())
+        self._temp_dir.mkdir(parents=True, exist_ok=True)
 
     def add_page(self, page):
         self._writer.add_page(page)
@@ -59,13 +61,12 @@ class _ChunkWriter:
     def _flush(self):
         if len(self._writer.pages) == 0:
             return
-        f = tempfile.mktemp(suffix='.pdf')
+        f = str(self._temp_dir / f"_chunk_{len(self._chunks)+1:04d}.pdf")
         with open(f, 'wb') as fp:
             self._writer.write(fp)
         n = len(self._writer.pages)
         self._chunks.append((f, n))
         self._page_base += n
-        print(f"\n  [chunk] 段 {len(self._chunks)} 已写盘 ({n} 页，累计 {self._page_base} 页)")
         self._writer = PdfWriter()
 
     def finish(self, output_path):
@@ -89,12 +90,16 @@ class _ChunkWriter:
                 total += n
             merger.write(output_path)
 
-        # 清理分段文件
+        # 清理分段文件和临时目录
         for path, _ in self._chunks:
             try:
                 os.remove(path)
             except OSError:
                 pass
+        try:
+            self._temp_dir.rmdir()
+        except OSError:
+            pass
 
         return total
 
@@ -313,9 +318,10 @@ def assemble(config):
     print(f"|  [file] {total_files} 个 (图片 {img_count} + PDF {pdf_count}){' ' * max(0, 17 - len(str(total_files)))} |")
     print("|" + " " * 48 + "|")
 
-    # Phase 2: 处理文件（分段吐盘）
+    # Phase 2: 处理文件（分段吐盘，临时文件放 D 盘）
     progress = {'done': 0, 'total': total_files}
-    ctx = _ChunkWriter(config.get('chunk_size', CHUNK_SIZE))
+    chunk_temp_dir = output_path.parent / "_chunks"
+    ctx = _ChunkWriter(config.get('chunk_size', CHUNK_SIZE), temp_dir=chunk_temp_dir)
     page_map = {}
 
     for entry in index_tree:
