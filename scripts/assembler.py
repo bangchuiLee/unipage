@@ -159,8 +159,10 @@ def _process_file(filepath, ctx, image_mode='fit', progress=None):
     # 断点续跑：跳过已处理文件
     if progress and progress.get('files_skipped', 0) < progress.get('resume_from', 0):
         progress['files_skipped'] = progress.get('files_skipped', 0) + 1
-        progress['done'] += 1
-        _update_progress_bar(progress)
+        if progress['files_skipped'] == 1:
+            print(f"  [resume] 跳过前 {progress['resume_from']} 个已处理文件...")
+        if progress['files_skipped'] == progress['resume_from']:
+            print(f"  [resume] 完成，继续处理剩余文件")
         return
 
     if ext in IMAGE_EXTS:
