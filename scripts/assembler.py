@@ -34,15 +34,43 @@ CHUNK_SIZE = 300  # 每段最多页数，达到后自动吐盘
 
 
 class _ChunkWriter:
-    """包装 PdfWriter，达到阈值时自动分段写盘，控制内存占用。"""
+    """包装 PdfWriter，达到阈值时自动分段写盘，控制内存占用。支持断点续跑。"""
 
-    def __init__(self, chunk_size=CHUNK_SIZE, temp_dir=None):
+    def __init__(self, chunk_size=CHUNK_SIZE, temp_dir=None, resume_dir=None):
         self._chunk_size = chunk_size
         self._chunks = []       # [(temp_path, page_count), ...]
         self._writer = PdfWriter()
         self._page_base = 0     # 前面已吐盘的页数累计
         self._temp_dir = Path(temp_dir) if temp_dir else Path(tempfile.gettempdir())
         self._temp_dir.mkdir(parents=True, exist_ok=True)
+        self._files_done = 0    # 断点续跑：已处理文件数
+
+        # 断点续跑：加载已有分段
+        if resume_dir:
+            self._load_existing(Path(resume_dir))
+
+    def _load_existing(self, d):
+        """从已有分段目录恢复，设置 page_base 和 files_done。"""
+        paths = sorted(d.glob("_chunk_*.pdf"))
+        if not paths:
+            return
+        total_pages = 0
+        for p in paths:
+            r = PdfReader(str(p))
+            n = len(r.pages)
+            self._chunks.append((str(p), n))
+            total_pages += n
+        self._page_base = total_pages
+
+        # 读取进度文件
+        progress_file = d / ".progress"
+        if progress_file.exists():
+            self._files_done = int(progress_file.read_text().strip())
+
+    def save_progress(self, files_done, total):
+        """保存进度到临时目录，用于断点续跑。"""
+        pf = self._temp_dir / ".progress"
+        pf.write_text(f"{files_done}\n{total}\n")
 
     def add_page(self, page):
         self._writer.add_page(page)
@@ -61,13 +89,17 @@ class _ChunkWriter:
     def _flush(self):
         if len(self._writer.pages) == 0:
             return
-        f = str(self._temp_dir / f"_chunk_{len(self._chunks)+1:04d}.pdf")
+        idx = len(self._chunks) + 1
+        f = str(self._temp_dir / f"_chunk_{idx:04d}.pdf")
         with open(f, 'wb') as fp:
             self._writer.write(fp)
         n = len(self._writer.pages)
         self._chunks.append((f, n))
         self._page_base += n
         self._writer = PdfWriter()
+        # 每吐一段就记录进度
+        if self._files_done > 0:
+            self.save_progress(self._files_done, 0)
 
     def finish(self, output_path):
         """合并所有分段 → 写最终 PDF → 清理分段临时文件。返回总页数。"""
@@ -110,6 +142,13 @@ def _process_file(filepath, ctx, image_mode='fit', progress=None):
     """处理单个文件，页面加入 _ChunkWriter"""
     fname = filepath.name
     ext = filepath.suffix.lower()
+
+    # 断点续跑：跳过已处理文件
+    if progress and progress.get('files_skipped', 0) < progress.get('resume_from', 0):
+        progress['files_skipped'] = progress.get('files_skipped', 0) + 1
+        progress['done'] += 1
+        _update_progress_bar(progress)
+        return
 
     if ext in IMAGE_EXTS:
         try:
@@ -160,11 +199,16 @@ def _process_file(filepath, ctx, image_mode='fit', progress=None):
 
     if progress is not None:
         progress['done'] += 1
-        done = progress['done']
-        total = progress['total']
-        pct = done * 100 // total if total > 0 else 100
-        bar = '#' * (pct // 5) + '.' * (20 - pct // 5)
-        print(f"\r  [{bar}] {pct}% ({done}/{total})", end='', flush=True)
+        _update_progress_bar(progress)
+
+
+def _update_progress_bar(progress):
+    """刷新进度条显示"""
+    done = progress['done']
+    total = progress['total']
+    pct = done * 100 // total if total > 0 else 100
+    bar = '#' * (pct // 5) + '.' * (20 - pct // 5)
+    print(f"\r  [{bar}] {pct}% ({done}/{total})", end='', flush=True)
 
 
 def _process_node(node, ctx, index_paths, page_map, config, progress=None):
@@ -318,14 +362,29 @@ def assemble(config):
     print(f"|  [file] {total_files} 个 (图片 {img_count} + PDF {pdf_count}){' ' * max(0, 17 - len(str(total_files)))} |")
     print("|" + " " * 48 + "|")
 
-    # Phase 2: 处理文件（分段吐盘，临时文件放 D 盘）
-    progress = {'done': 0, 'total': total_files}
+    # Phase 2: 处理文件（分段吐盘，支持断点续跑）
     chunk_temp_dir = output_path.parent / "_chunks"
-    ctx = _ChunkWriter(config.get('chunk_size', CHUNK_SIZE), temp_dir=chunk_temp_dir)
+    resume_dir = config.get('resume_chunks')  # 断点续跑：已有分段目录
+    resume_from = 0
+
+    if resume_dir:
+        # 从进度文件读取已完成的文件数
+        pf = Path(resume_dir) / ".progress"
+        if pf.exists():
+            data = pf.read_text().strip().split('\n')
+            resume_from = int(data[0])
+
+    progress = {'done': resume_from, 'total': total_files, 
+                'files_skipped': 0, 'resume_from': resume_from}
+    ctx = _ChunkWriter(config.get('chunk_size', CHUNK_SIZE), 
+                       temp_dir=chunk_temp_dir, resume_dir=resume_dir)
     page_map = {}
 
     for entry in index_tree:
         _process_node(entry, ctx, None, page_map, config, progress)
+
+    # 保存最终进度
+    ctx.save_progress(progress['done'], total_files)
 
     print()
 
