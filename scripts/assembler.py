@@ -64,18 +64,23 @@ def _process_file(filepath, writer, image_mode='fit', progress=None):
         src.close()
 
     elif ext in TABLE_EXTS:
-        try:
-            result = format_xlsx(str(filepath))
-            formatted = result["path"]
-            sheets_info = ", ".join(
-                f"{s['name']}({s['rows']}行×{s['cols']}列,{s['orientation']})"
-                for s in result["sheets"]
-            )
-            print(f"\n  [XLSX] {fname} 已格式化 → {Path(formatted).name}")
-            print(f"         请用 Excel 打开 → Ctrl+P 打印为 PDF，放回原目录")
-            print(f"         共 {len(result['sheets'])} 个 sheet: {sheets_info}")
-        except Exception as e:
-            print(f"\n  [XLSX] {fname}: 格式化失败 ({e})，请手动转换为 PDF")
+        # 如果同目录已有同名 PDF，说明用户已手动转换，跳过
+        pdf_sibling = filepath.with_suffix('.pdf')
+        if pdf_sibling.exists():
+            pass  # 已有 PDF，静默跳过
+        else:
+            try:
+                result = format_xlsx(str(filepath))
+                formatted = result["path"]
+                sheets_info = ", ".join(
+                    f"{s['name']}({s['rows']}行×{s['cols']}列,{s['orientation']})"
+                    for s in result["sheets"]
+                )
+                print(f"\n  [XLSX] {fname} 已格式化 → {Path(formatted).name}")
+                print(f"         请用 Excel 打开 → Ctrl+P 打印为 PDF，放回原目录")
+                print(f"         共 {len(result['sheets'])} 个 sheet: {sheets_info}")
+            except Exception as e:
+                print(f"\n  [XLSX] {fname}: 格式化失败 ({e})，请手动转换为 PDF")
 
     if progress is not None:
         progress['done'] += 1
