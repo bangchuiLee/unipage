@@ -90,15 +90,17 @@ python -m diligence_pdf.scripts.cli assemble /path/to/dir -o output.pdf
 | PDF（A4 有边距） | 原样通过（零开销） |
 | PDF（近A4 无边距） | `show_pdf_page` 矢量包裹加边距 |
 | PDF（非标准/旋转异常） | 150dpi pixmap 光栅化渲染 |
-| XLSX/XLS | **不支持直接处理。输出时打印提示，需用户手动预转换为 PDF。** |
+| XLSX/XLS | **自动格式化（wrap_text + 列宽适配 + 打印缩放），在同目录生成 `_格式化.xlsx`。用户用 Excel 打开后 Ctrl+P 打印为 PDF，放回原目录即可纳入。** |
 | EML/DOCX/MP4 等 | 自动跳过，输出时列出未处理文件 |
 
 ### XLSX 处理规则
 
-- 归页不会自动将表格转换为 PDF 页面
-- 扫描到 XLSX/XLS 时，仅在控制台输出提示信息，不会中断流程
-- 用户可以手动将表格打印/导出为 PDF，放入对应文件夹或通过额外参数指定路径
-- 已预留 `include_tables` 配置项，但当前版本不启用自动转换
+- 扫描到 XLSX/XLS 时，自动调用 `scripts/xlsx_formatter.py` 格式化表格
+- 处理逻辑：逐 sheet 设 wrap_text + 计算最优列宽 + 横纵判断 + fitToWidth=1 打印缩放
+- 输出一份 `原文件名_格式化.xlsx` 到同目录
+- 控制台打印每个 sheet 的行列数和方向，提示用户手动打印为 PDF
+- 用户手动打印的 PDF 需放回原目录（与 xlsx 同名 .pdf），归页再次扫描时会自动纳入
+- 如需批量导出：用项目目录下的 `format_xlsx.py --test` 测试，确认无问题后全量执行
 
 ## macOS 文件处理
 

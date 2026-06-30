@@ -26,6 +26,7 @@ from scripts.collector import should_skip, is_supported, collect_folder, resolve
 from scripts.indexer import split_index_pdf, make_index_page, auto_index_from_folders
 from scripts.bookmarks import collect_bookmarks_from_index_tree, add_bookmarks
 from scripts.pagenum import add_page_numbers
+from scripts.xlsx_formatter import format_xlsx
 
 
 def _process_file(filepath, writer, image_mode='fit', progress=None):
@@ -63,8 +64,18 @@ def _process_file(filepath, writer, image_mode='fit', progress=None):
         src.close()
 
     elif ext in TABLE_EXTS:
-        # 预转换表格：提示用户手动转换后提供 PDF 路径
-        print(f"\n  [INFO] {fname}: 表格文件，请预先转换为 PDF 后使用 --table-pdf 参数指定")
+        try:
+            result = format_xlsx(str(filepath))
+            formatted = result["path"]
+            sheets_info = ", ".join(
+                f"{s['name']}({s['rows']}行×{s['cols']}列,{s['orientation']})"
+                for s in result["sheets"]
+            )
+            print(f"\n  [XLSX] {fname} 已格式化 → {Path(formatted).name}")
+            print(f"         请用 Excel 打开 → Ctrl+P 打印为 PDF，放回原目录")
+            print(f"         共 {len(result['sheets'])} 个 sheet: {sheets_info}")
+        except Exception as e:
+            print(f"\n  [XLSX] {fname}: 格式化失败 ({e})，请手动转换为 PDF")
 
     if progress is not None:
         progress['done'] += 1
