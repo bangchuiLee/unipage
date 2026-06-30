@@ -147,7 +147,8 @@ def assemble(config):
         print("|  [scan] 索引模式   自动扫描目录生成索引                  |")
         index_tree = auto_index_from_folders(input_dir)
         for entry in index_tree:
-            entry['type'] = 'folder'
+            has_children = bool(entry.get('children'))
+            entry['type'] = 'index_only' if has_children else 'folder'
             entry['gen_index'] = True
             for child in entry.get('children', []):
                 child['type'] = 'folder'
